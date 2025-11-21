@@ -18,6 +18,9 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
 uri = os.getenv('DATABASE_URL')
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
+
+# Configure the PostgreSQL connection using the Neon.tech URL
+# Ensure SSL mode is enabled for secure cloud communication
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 
 db = SQLAlchemy(app)
