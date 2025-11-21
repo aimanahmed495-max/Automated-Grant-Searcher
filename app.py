@@ -1,3 +1,6 @@
+__version__ = '0.1.0'
+__author__ = 'Aiman Ahmed'
+
 import os
 from flask import Flask, render_template, redirect, url_for, request, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
