@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .container { display: flex; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex: 1; }
+        h3 { margin-top: 0; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #666; font-size: 0.9em; }
+        .btn { text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
+        .save-btn { background-color: #28a745; color: white; }
+        .remove-btn { background-color: #dc3545; color: white; }
+        .chart-container { width: 100%; height: 250px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Welcome, {{ user.name }}</h1>
+        <a href="/logout" style="color: #dc3545; text-decoration: none; font-weight: bold;">Logout</a>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h3>Funding Source Analytics</h3>
+        <div class="chart-container">
+            <canvas id="fundingChart"></canvas>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h3>🔍 Available Opportunities</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Grant Title</th>
+                        <th>Source</th>
+                        <th>Max Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for g in grants %}
+                    <tr>
+                        <td>{{ g.title }}</td>
+                        <td>{{ g.source_name }}</td>
+                        <td>${{ g.amount_max }}</td>
+                        <td>
+                            <a href="/save_grant/{{ g.id }}" class="btn save-btn">+ Save</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>⭐ My Saved List</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if saved_grants %}
+                        {% for s in saved_grants %}
+                        <tr>
+                            <td>{{ s.title }}</td>
+                            <td><span style="background:#e2e6ea; padding: 2px 6px; border-radius: 4px; font-size: 0.8em;">{{ s.status }}</span></td>
+                            <td>
+                                <a href="/delete_grant/{{ s.id }}" class="btn remove-btn">Remove</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="3" style="text-align:center; color:#999;">No grants saved yet.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Script to render the Data Visualization
+        fetch('/chart-data')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('fundingChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Number of Grants Available',
+                            data: data.data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0 } }
+                        }
+                    }
+                });
+            });
+    </script>
+</body>
+</html>
